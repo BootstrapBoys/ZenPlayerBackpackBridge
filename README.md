@@ -39,10 +39,10 @@ This mod requires the following dependencies to function:
 
 ## ⚙️ Installation
 
-### **Via Mod Manager (Hexium Mod Manager / r2modman / Thunderstore)**
+### **Via Mod Manager (Gale Mod Manager / r2modman / Thunderstore)**
 1. Open your mod manager and select **Valheim**.
 2. Search for `ZenPlayer Backpack Bridge` or find it on [Hexium.gg](https://valheim.hexium.gg).
-3. Click **Download with Dependencies**.
+3. Click **Install with Gale**.
 
 ### **Manual Installation**
 1. Download the mod package from [Hexium.gg](https://valheim.hexium.gg).
