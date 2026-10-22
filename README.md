@@ -31,7 +31,7 @@ This mod requires the following dependencies to function:
 
 | Mod | GUID | Link |
 | :--- | :--- | :--- |
-| **BepInExPack Valheim** | N/A | [Thunderstore](https://valheim.thunderstore.io/package/denikson/BepInExPack_Valheim/) |
+| **BepInExPack Valheim** | N/A | [Hexium](https://valheim.hexium.gg/mods/denikson/BepInExPack_Valheim) |
 | **ZenPlayer** | `ZenDragon.ZenPlayer` | [Hexium](https://valheim.hexium.gg/mods/ZenDragon/ZenPlayer) |
 | **AdventureBackpacks** | `vapok.mods.adventurebackpacks` | [Thunderstore](https://valheim.thunderstore.io/package/Vapok/AdventureBackpacks/) |
 
@@ -45,7 +45,7 @@ This mod requires the following dependencies to function:
 3. Click **Download with Dependencies**.
 
 ### **Manual Installation**
-1. Install [BepInExPack Valheim](https://valheim.thunderstore.io/package/denikson/BepInExPack_Valheim/), [ZenPlayer](https://valheim.hexium.gg/mods/ZenDragon/ZenPlayer), and [AdventureBackpacks](https://valheim.thunderstore.io/package/Vapok/AdventureBackpacks/).
+1. Install [BepInExPack Valheim](https://valheim.hexium.gg/mods/denikson/BepInExPack_Valheim), [ZenPlayer](https://valheim.hexium.gg/mods/ZenDragon/ZenPlayer), and [AdventureBackpacks](https://valheim.thunderstore.io/package/Vapok/AdventureBackpacks/).
 2. Download `ZenPlayerBackpackBridge.dll`.
 3. Place `ZenPlayerBackpackBridge.dll` inside your Valheim installation folder under:
    `Valheim/BepInEx/plugins/`
