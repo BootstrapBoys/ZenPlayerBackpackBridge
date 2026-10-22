@@ -1,0 +1,67 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*' # Triggers on semantic version tags like v1.0.0
+
+jobs:
+  build-and-release:
+    name: Build DLL and Create Release
+    runs-on: windows-latest # Assuming a .NET/C# project requiring Windows to build the DLL
+
+    permissions:
+      contents: write # Required to create the GitHub Release and upload assets
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 1. Setup .NET SDK (Adjust version if necessary, e.g., net6.0, net7.0, net8.0)
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      # 2. Build the DLL in Release configuration
+      - name: Build Project
+        run: dotnet build --configuration Release --output ./build_output
+
+      # 3. Prepare Staging Directory for Packaging
+      - name: Prepare Package Files
+        shell: pwsh
+        run: |
+          $stagingDir = "./package_staging"
+          New-Item -ItemType Directory -Force -Path $stagingDir
+
+          # Copy compiled DLL(s) - adjust pattern if your DLL has a specific name
+          Copy-Item "./build_output/*.dll" -Destination $stagingDir
+
+          # Copy required files (make sure they exist in the repo root)
+          $filesToCopy = @("CHANGELOG.md", "manifest.json", "icon.png", "README.md")
+          foreach ($file in $filesToCopy) {
+              if (Test-Path $file) {
+                  Copy-Item $file -Destination $stagingDir
+                  Write-Host "Copied $file to staging."
+              } else {
+                  Write-Warning "Required file $file was not found in repository root!"
+              }
+          }
+
+      # 4. Zip up the staged files
+      - name: Create Zip Archive
+        shell: pwsh
+        run: |
+          $version = $env:GITHUB_REF_NAME
+          $zipName = "ZenPlayerBackpackBridge-$version.zip"
+          Compress-Archive -Path "./package_staging/*" -DestinationPath $zipName
+          echo "ZIP_NAME=$zipName" >> $env:GITHUB_ENV
+
+      # 5. Create GitHub Release and Upload Artifact
+      - name: Publish Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.ZIP_NAME }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
