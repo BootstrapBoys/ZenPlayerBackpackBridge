@@ -32,7 +32,7 @@ This mod requires the following dependencies to function:
 | Mod | GUID | Link |
 | :--- | :--- | :--- |
 | **BepInExPack Valheim** | N/A | [Thunderstore](https://valheim.thunderstore.io/package/denikson/BepInExPack_Valheim/) |
-| **ZenPlayer** | `ZenDragon.ZenPlayer` | [Thunderstore](https://valheim.thunderstore.io/package/ZenDragon/ZenPlayer/) |
+| **ZenPlayer** | `ZenDragon.ZenPlayer` | [Hexium](https://valheim.hexium.gg/mods/ZenDragon/ZenPlayer) |
 | **AdventureBackpacks** | `vapok.mods.adventurebackpacks` | [Thunderstore](https://valheim.thunderstore.io/package/Vapok/AdventureBackpacks/) |
 
 ---
@@ -45,7 +45,7 @@ This mod requires the following dependencies to function:
 3. Click **Download with Dependencies**.
 
 ### **Manual Installation**
-1. Install [BepInExPack Valheim](https://valheim.thunderstore.io/package/denikson/BepInExPack_Valheim/), [ZenPlayer](https://valheim.thunderstore.io/package/ZenDragon/ZenPlayer/), and [AdventureBackpacks](https://valheim.thunderstore.io/package/Vapok/AdventureBackpacks/).
+1. Install [BepInExPack Valheim](https://valheim.thunderstore.io/package/denikson/BepInExPack_Valheim/), [ZenPlayer](https://valheim.hexium.gg/mods/ZenDragon/ZenPlayer), and [AdventureBackpacks](https://valheim.thunderstore.io/package/Vapok/AdventureBackpacks/).
 2. Download `ZenPlayerBackpackBridge.dll`.
 3. Place `ZenPlayerBackpackBridge.dll` inside your Valheim installation folder under:
    `Valheim/BepInEx/plugins/`
@@ -78,8 +78,8 @@ Enable Debug Logging = false
 If items in your backpack are not being registered:
 1. Ensure **Mod Enabled** is set to `true` in `com.bootstrapboys.zenplayerbackpackbridge.cfg`.
 2. Enable **Enable Debug Logging** in the config.
-3. Open `BepInEx/LogOutput.log` and search for entries tagged with `[Bridge v1.1.0]`.
+3. Open `BepInEx/LogOutput.log` and search for entries tagged with `[Bridge v1.1.1]`.
    * You should see lines indicating hooked methods on boot:
-     `[Bridge v1.1.0] Successfully hooked ZenPlayer method: CheckClass.HaveItem`
+     `[Bridge v1.1.1] Successfully hooked ZenPlayer method: CheckClass.HaveItem`
    * When checking items, successful overrides will log:
-     `[Bridge v1.1.0] Method HaveItem missed item '$item_stone', but found it in backpack! Overriding result to TRUE.`
+     `[Bridge v1.1.1] Method HaveItem missed item '$item_stone', but found it in backpack! Overriding result to TRUE.`
