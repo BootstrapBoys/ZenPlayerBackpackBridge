@@ -39,15 +39,16 @@ This mod requires the following dependencies to function:
 
 ## ⚙️ Installation
 
-### **Via Mod Manager (r2modman / Thunderstore Mod Manager)**
+### **Via Mod Manager (Hexium Mod Manager / r2modman / Thunderstore)**
 1. Open your mod manager and select **Valheim**.
-2. Search for `ZenPlayer Backpack Bridge`.
+2. Search for `ZenPlayer Backpack Bridge` or find it on [Hexium.gg](https://valheim.hexium.gg).
 3. Click **Download with Dependencies**.
 
 ### **Manual Installation**
-1. Install [BepInExPack Valheim](https://valheim.hexium.gg/mods/denikson/BepInExPack_Valheim), [ZenPlayer](https://valheim.hexium.gg/mods/ZenDragon/ZenPlayer), and [AdventureBackpacks](https://valheim.thunderstore.io/package/Vapok/AdventureBackpacks/).
-2. Download `ZenPlayerBackpackBridge.dll`.
-3. Place `ZenPlayerBackpackBridge.dll` inside your Valheim installation folder under:
+1. Download the mod package from [Hexium.gg](https://valheim.hexium.gg).
+2. Install [BepInExPack Valheim](https://valheim.hexium.gg/mods/denikson/BepInExPack_Valheim), [ZenPlayer](https://valheim.hexium.gg/mods/ZenDragon/ZenPlayer), and [AdventureBackpacks](https://valheim.thunderstore.io/package/Vapok/AdventureBackpacks/).
+3. Extract `ZenPlayerBackpackBridge.dll` from the downloaded archive.
+4. Place `ZenPlayerBackpackBridge.dll` inside your Valheim installation folder under:
    `Valheim/BepInEx/plugins/`
 
 ---
