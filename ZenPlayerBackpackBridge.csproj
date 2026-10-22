@@ -1,0 +1,55 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <AssemblyName>ZenPlayerBackpackBridge</AssemblyName>
+    <RootNamespace>ZenPlayerBackpackBridge</RootNamespace>
+    <Version>1.0.9</Version>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <!-- Point these paths to your local Valheim and BepInEx directories -->
+  <PropertyGroup>
+    <ValheimManagedDir>C:\SteamLibrary\steamapps\common\Valheim\valheim_Data\Managed</ValheimManagedDir>
+    <BepInExCoreDir>C:\Users\zebz2\AppData\Roaming\com.kesomannen.gale\valheim\profiles\Bootstrap Boys Private Server Pack\BepInEx\core</BepInExCoreDir>
+    <BepInExPluginsDir>C:\Users\zebz2\AppData\Roaming\com.kesomannen.gale\valheim\profiles\Bootstrap Boys Private Server Pack\BepInEx\plugins</BepInExPluginsDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Core Valheim References -->
+    <Reference Include="UnityEngine">
+      <HintPath>$(ValheimManagedDir)\UnityEngine.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(ValheimManagedDir)\UnityEngine.CoreModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="assembly_valheim">
+      <HintPath>$(ValheimManagedDir)\assembly_valheim.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+
+    <!-- BepInEx & Harmony References -->
+    <Reference Include="BepInEx">
+      <HintPath>$(BepInExCoreDir)\BepInEx.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(BepInExCoreDir)\0Harmony.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+
+    <!-- Mod References (Adventure Backpacks & ZenPlayer) -->
+    <Reference Include="AdventureBackpacks">
+      <HintPath>$(BepInExPluginsDir)\Vapok-AdventureBackpacks\AdventureBackpacks.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="ZenPlayer">
+      <HintPath>$(BepInExPluginsDir)\ZenDragon-ZenPlayer\ZenPlayer.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+
+</Project>
