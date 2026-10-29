@@ -1,0 +1,17 @@
+# Build outputs
+bin/
+obj/
+
+# Local reference assemblies: reproducible downloads, never committed
+refs/
+libs/
+
+# Build artefacts are installed from artifacts/, not tracked
+artifacts/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.user
+.vs/
+.idea/

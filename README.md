@@ -1,86 +1,37 @@
-# ZenPlayer Backpack Bridge
+# ZenPlayer Backpack Bridge — source
 
-**ZenPlayer Backpack Bridge** is a Valheim compatibility mod designed to bridge inventory checks between **ZenPlayer** and **AdventureBackpacks**.
+Source repository for the Valheim BepInEx mod. The published package page is on Hexium:
 
-It dynamically hooks into ZenPlayer's inventory verification methods to ensure that items stored inside equipped backpacks are recognized during item and requirement checks—preventing failed checks when items exist within a backpack inventory.
+<https://valheim.hexium.gg/mods/BootstrapBoys/ZenPlayer_Backpack_Bridge>
 
----
+The package README, changelog, manifest and icon live in `resources/`; that folder is what gets zipped with the DLL. The in-game test plan is in `docs/TESTING.md`.
 
-## 🚀 How It Works
+## Layout
 
-When ZenPlayer queries the player's inventory for specific items or prerequisites (e.g., checking if the player possesses required materials or tools):
-1. **Primary Inventory Check:** ZenPlayer runs its default inventory checks.
-2. **Backpack Interception:** If the primary check returns `false`, ZenPlayer Backpack Bridge intercepts the result and queries `AdventureBackpacks.API` (`ABAPI`).
-3. **Backpack Scanning:** It checks all currently equipped backpack inventories on `Player.m_localPlayer` for matching `ItemDrop.ItemData` or localization string identifiers (`$item_...`).
-4. **Override Result:** If the item is located inside an equipped backpack, the check dynamically overrides the result to `true`.
+| Path | Purpose |
+| :--- | :--- |
+| `zbb_main.cs` | Plugin entry point, configuration and the ZenPlayer auto-pickup postfix |
+| `zbb_debugger.cs` | Diagnostics: dedicated log, patch inventory, dumps, decision trace |
+| `resources/` | Files shipped inside the mod zip (`README.md`, `CHANGELOG.md`, `manifest.json`, `icon.png`) |
+| `refs/game/` | Local Valheim + BepInEx reference assemblies (not committed) |
+| `refs/mods/` | Local AdventureBackpacks and ZenPlayer assemblies (not committed) |
+| `tooling/` | `build.sh`, `decompile.sh`, and the binding/version audit |
+| `artifacts/` | Build output: `debug/` candidate DLL, `release/` packages (not committed) |
+| `docs/` | Test plan and development notes |
 
----
+## Build
 
-## 🛠️ Features
+Requires the .NET SDK 8 and a local Valheim install. Reference assemblies are deliberately not committed: copy the game's `valheim_Data/Managed` and `BepInEx/core` into `refs/game/`, and `AdventureBackpacks.dll` / `ZenPlayer.dll` into `refs/mods/`, or override the paths:
 
-* **Dynamic Reflection Patching:** Automatically discovers and hooks relevant ZenPlayer inventory and item check methods (`Inventory`, `Item`, `Have`, `Check`) at runtime.
-* **AdventureBackpacks API Integration:** Direct integration via `ABAPI.GetAllBackpackInventories()` to safely search equipped backpacks.
-* **Zero Inventory Duplication:** Read-only checks that preserve backpack contents and native player inventories.
-* **Configurable Logging:** Optional debug logging for tracking hooked methods and intercepted item overrides in real time.
-
----
-
-## 📋 Requirements
-
-This mod requires the following dependencies to function:
-
-| Mod | GUID | Link |
-| :--- | :--- | :--- |
-| **BepInExPack Valheim** | N/A | [Hexium](https://valheim.hexium.gg/mods/denikson/BepInExPack_Valheim) |
-| **ZenPlayer** | `ZenDragon.ZenPlayer` | [Hexium](https://valheim.hexium.gg/mods/ZenDragon/ZenPlayer) |
-| **AdventureBackpacks** | `vapok.mods.adventurebackpacks` | [Thunderstore](https://valheim.thunderstore.io/package/Vapok/AdventureBackpacks/) |
-
----
-
-## ⚙️ Installation
-
-### **Via Mod Manager (Gale Mod Manager / r2modman / Thunderstore)**
-1. Open your mod manager and select **Valheim**.
-2. Search for `ZenPlayer Backpack Bridge` or find it on [Hexium.gg](https://valheim.hexium.gg).
-3. Click **Install with Gale**.
-
-### **Manual Installation**
-1. Download the mod package from [Hexium.gg](https://valheim.hexium.gg).
-2. Install [BepInExPack Valheim](https://valheim.hexium.gg/mods/denikson/BepInExPack_Valheim), [ZenPlayer](https://valheim.hexium.gg/mods/ZenDragon/ZenPlayer), and [AdventureBackpacks](https://valheim.thunderstore.io/package/Vapok/AdventureBackpacks/).
-3. Extract `ZenPlayerBackpackBridge.dll` from the downloaded archive.
-4. Place `ZenPlayerBackpackBridge.dll` inside your Valheim installation folder under:
-   `Valheim/BepInEx/plugins/`
-
----
-
-## ⚙️ Configuration
-
-A configuration file is generated upon first run at:
-`Valheim/BepInEx/config/com.bootstrapboys.zenplayerbackpackbridge.cfg`
-
-```ini
-[1. General]
-
-## Enable or disable bridge.
-# Setting type: Boolean
-# Default value: true
-Mod Enabled = true
-
-## Print debug info to log.
-# Setting type: Boolean
-# Default value: false
-Enable Debug Logging = false
+```bash
+VALHEIM_DIR=/path/to/Valheim \
+BEPINEX_DIR=/path/to/BepInEx \
+MODS_DIR=/path/to/mods \
+  ./tooling/build.sh
 ```
 
----
+The script builds with warnings-as-errors, runs the binding and version audit, and drops `artifacts/debug/ZenPlayerBackpackBridge.dll` with a `build-info.txt`.
 
-## 🐛 Troubleshooting & Debugging
+## Release
 
-If items in your backpack are not being registered:
-1. Ensure **Mod Enabled** is set to `true` in `com.bootstrapboys.zenplayerbackpackbridge.cfg`.
-2. Enable **Enable Debug Logging** in the config.
-3. Open `BepInEx/LogOutput.log` and search for entries tagged with `[Bridge v1.1.1]`.
-   * You should see lines indicating hooked methods on boot:
-     `[Bridge v1.1.1] Successfully hooked ZenPlayer method: CheckClass.HaveItem`
-   * When checking items, successful overrides will log:
-     `[Bridge v1.1.1] Method HaveItem missed item '$item_stone', but found it in backpack! Overriding result to TRUE.`
+Packaging is intentionally manual and only happens on request: build, then zip the DLL with `resources/{README.md,CHANGELOG.md,manifest.json,icon.png}` at the archive root. There is no GitHub Actions build, because the game reference assemblies cannot be redistributed with the repository.

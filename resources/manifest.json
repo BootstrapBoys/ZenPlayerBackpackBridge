@@ -1,0 +1,11 @@
+{
+  "name": "ZenPlayer_Backpack_Bridge",
+  "version_number": "1.3.1",
+  "website_url": "https://valheim.hexium.gg/mods/BootstrapBoys/ZenPlayer_Backpack_Bridge",
+  "description": "Lets ZenPlayer's \"Have In Inventory\" auto-pickup count items stored in equipped or carried AdventureBackpacks.",
+  "dependencies": [
+    "denikson-BepInExPack_Valheim-5.4.2360",
+    "Vapok-AdventureBackpacks-2.4.6",
+    "ZenDragon-ZenPlayer-1.3.0"
+  ]
+}

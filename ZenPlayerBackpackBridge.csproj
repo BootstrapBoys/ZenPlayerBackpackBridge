@@ -4,64 +4,67 @@
     <TargetFramework>net48</TargetFramework>
     <AssemblyName>ZenPlayerBackpackBridge</AssemblyName>
     <RootNamespace>ZenPlayerBackpackBridge</RootNamespace>
-    <Version>1.1.1</Version>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Description>Lets ZenPlayer's "Have In Inventory" auto-pickup count items stored in equipped or carried AdventureBackpacks.</Description>
+
+    <!-- Keep in sync with Plugin.ModVersion, resources/manifest.json and the top
+         resources/CHANGELOG.md heading. tooling/build-check/Inspect fails the build if they drift. -->
+    <Version>1.3.1</Version>
+    <AssemblyVersion>1.3.1.0</AssemblyVersion>
+    <FileVersion>1.3.1.0</FileVersion>
+
     <LangVersion>latest</LangVersion>
-  </PropertyGroup>
 
-  <!-- CI Detection: GitHub Actions sets 'CI' environment variable to 'true' -->
-  <PropertyGroup Condition="'$(CI)' == 'true'">
-    <GameLibsDir>$(MSBuildProjectDirectory)\libs</GameLibsDir>
-  </PropertyGroup>
+    <!-- Override these without editing this file:
+         VALHEIM_DIR  directory that contains valheim_Data/Managed
+         BEPINEX_DIR  directory that contains core/BepInEx.dll
+         MODS_DIR     directory that contains AdventureBackpacks.dll -->
+    <ValheimInstallDir Condition="'$(VALHEIM_DIR)' != ''">$(VALHEIM_DIR)</ValheimInstallDir>
+    <ValheimInstallDir Condition="'$(ValheimInstallDir)' == ''">C:\SteamLibrary\steamapps\common\Valheim</ValheimInstallDir>
 
-  <!-- Local PC Paths (Used when building on your personal machine) -->
-  <PropertyGroup Condition="'$(CI)' != 'true'">
-    <ValheimManagedDir>C:\SteamLibrary\steamapps\common\Valheim\valheim_Data\Managed</ValheimManagedDir>
-    <BepInExCoreDir>C:\Users\zebz2\AppData\Roaming\com.kesomannen.gale\valheim\profiles\Bootstrap Boys Private Server Pack\BepInEx\core</BepInExCoreDir>
-    <BepInExPluginsDir>C:\Users\zebz2\AppData\Roaming\com.kesomannen.gale\valheim\profiles\Bootstrap Boys Private Server Pack\BepInEx\plugins</BepInExPluginsDir>
-    <GameLibsDir>$(MSBuildProjectDirectory)\libs</GameLibsDir>
+    <BepInExDir Condition="'$(BEPINEX_DIR)' != ''">$(BEPINEX_DIR)</BepInExDir>
+    <BepInExDir Condition="'$(BepInExDir)' == ''">C:\Users\zebz2\AppData\Roaming\com.kesomannen.gale\valheim\profiles\Bootstrap Boys Private Server Pack\BepInEx</BepInExDir>
+
+    <ModsDir Condition="'$(MODS_DIR)' != ''">$(MODS_DIR)</ModsDir>
+    <ModsDir Condition="'$(ModsDir)' == ''">$(BepInExDir)/plugins/Vapok-AdventureBackpacks</ModsDir>
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Core Valheim References (Checks local paths first, falls back to ./libs if CI) -->
-    <Reference Include="UnityEngine">
-      <HintPath Condition="'$(CI)' != 'true'">$(ValheimManagedDir)\UnityEngine.dll</HintPath>
-      <HintPath Condition="'$(CI)' == 'true'">$(GameLibsDir)\UnityEngine.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="UnityEngine.CoreModule">
-      <HintPath Condition="'$(CI)' != 'true'">$(ValheimManagedDir)\UnityEngine.CoreModule.dll</HintPath>
-      <HintPath Condition="'$(CI)' == 'true'">$(GameLibsDir)\UnityEngine.CoreModule.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="assembly_valheim">
-      <HintPath Condition="'$(CI)' != 'true'">$(ValheimManagedDir)\assembly_valheim.dll</HintPath>
-      <HintPath Condition="'$(CI)' == 'true'">$(GameLibsDir)\assembly_valheim.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
+    <!-- tooling/ contains the audit project; docs/ is reserved for decompiled reference sources.
+         Either would otherwise be swallowed by the SDK's default **/*.cs glob. -->
+    <Compile Remove="tooling/**/*.cs" />
+    <Compile Remove="docs/**/*.cs" />
+  </ItemGroup>
 
-    <!-- BepInEx & Harmony References -->
+  <ItemGroup>
+    <!-- BepInEx + Harmony -->
     <Reference Include="BepInEx">
-      <HintPath Condition="'$(CI)' != 'true'">$(BepInExCoreDir)\BepInEx.dll</HintPath>
-      <HintPath Condition="'$(CI)' == 'true'">$(GameLibsDir)\BepInEx.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>$(BepInExDir)/core/BepInEx.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="0Harmony">
-      <HintPath Condition="'$(CI)' != 'true'">$(BepInExCoreDir)\0Harmony.dll</HintPath>
-      <HintPath Condition="'$(CI)' == 'true'">$(GameLibsDir)\0Harmony.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>$(BepInExDir)/core/0Harmony.dll</HintPath>
+      <Private>false</Private>
     </Reference>
 
-    <!-- Mod References (Adventure Backpacks & ZenPlayer) -->
-    <Reference Include="AdventureBackpacks">
-      <HintPath Condition="'$(CI)' != 'true'">$(BepInExPluginsDir)\Vapok-AdventureBackpacks\AdventureBackpacks.dll</HintPath>
-      <HintPath Condition="'$(CI)' == 'true'">$(GameLibsDir)\AdventureBackpacks.dll</HintPath>
-      <Private>False</Private>
+    <!-- Valheim + Unity -->
+    <Reference Include="UnityEngine">
+      <HintPath>$(ValheimInstallDir)/valheim_Data/Managed/UnityEngine.dll</HintPath>
+      <Private>false</Private>
     </Reference>
-    <Reference Include="ZenPlayer">
-      <HintPath Condition="'$(CI)' != 'true'">$(BepInExPluginsDir)\ZenDragon-ZenPlayer\ZenPlayer.dll</HintPath>
-      <HintPath Condition="'$(CI)' == 'true'">$(GameLibsDir)\ZenPlayer.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(ValheimInstallDir)/valheim_Data/Managed/UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="assembly_valheim">
+      <HintPath>$(ValheimInstallDir)/valheim_Data/Managed/assembly_valheim.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <!-- AdventureBackpacks is called through its public ABAPI surface, so it is a real compile
+         reference. ZenPlayer is reached only by GUID + reflection and deliberately is not one. -->
+    <Reference Include="AdventureBackpacks">
+      <HintPath>$(ModsDir)/AdventureBackpacks.dll</HintPath>
+      <Private>false</Private>
     </Reference>
   </ItemGroup>
 
