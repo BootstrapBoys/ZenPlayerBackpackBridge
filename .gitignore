@@ -5,6 +5,7 @@ obj/
 # Local reference assemblies: reproducible downloads, never committed
 refs/
 libs/
+.ci/
 
 # Build artefacts are installed from artifacts/, not tracked
 artifacts/

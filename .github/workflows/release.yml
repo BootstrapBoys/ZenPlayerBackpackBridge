@@ -1,0 +1,116 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g. v1.3.1)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-and-release:
+    name: Build, audit and publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Fetch reference assemblies
+        run: ./tooling/ci-fetch-refs.sh
+
+      - name: Determine version
+        id: version
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_VERSION: ${{ inputs.version }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            VERSION="$INPUT_VERSION"
+          else
+            VERSION="$REF_NAME"
+          fi
+          VERSION="${VERSION#v}"
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid version '$VERSION'; expected x.y.z or vx.y.z" >&2
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Verify version matches source
+        shell: bash
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          grep -q "ModVersion = \"$VERSION\"" zbb_main.cs
+          python3 - <<'PY'
+          import json, os
+          version = os.environ["VERSION"]
+          manifest = json.load(open("resources/manifest.json"))
+          assert manifest["version_number"] == version, \
+              f"manifest {manifest['version_number']} != {version}"
+          changelog = open("resources/CHANGELOG.md").read()
+          assert f"## [{version}]" in changelog, f"CHANGELOG has no [{version}] entry"
+          PY
+
+      - name: Build and audit
+        run: ./tooling/build.sh
+
+      - name: Package
+        shell: bash
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os, zipfile
+          version = os.environ["VERSION"]
+          zip_name = f"ZenPlayerBackpackBridge-v{version}.zip"
+          entries = [
+              ("artifacts/debug/ZenPlayerBackpackBridge.dll", "ZenPlayerBackpackBridge.dll"),
+              ("resources/README.md", "README.md"),
+              ("resources/CHANGELOG.md", "CHANGELOG.md"),
+              ("resources/manifest.json", "manifest.json"),
+              ("resources/icon.png", "icon.png"),
+          ]
+          with zipfile.ZipFile(zip_name, "w", zipfile.ZIP_DEFLATED) as z:
+              for source, name in entries:
+                  z.write(source, name)
+          print(f"Packaged {zip_name}")
+          PY
+          sha256sum "ZenPlayerBackpackBridge-v${VERSION}.zip" > "ZenPlayerBackpackBridge-v${VERSION}-CHECKSUMS.txt"
+          unzip -l "ZenPlayerBackpackBridge-v${VERSION}.zip"
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Release v${{ steps.version.outputs.version }}
+          files: |
+            ZenPlayerBackpackBridge-v${{ steps.version.outputs.version }}.zip
+            ZenPlayerBackpackBridge-v${{ steps.version.outputs.version }}-CHECKSUMS.txt
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          draft: false
+          prerelease: false
