@@ -163,7 +163,7 @@ namespace ZenPlayerBackpackBridge
                 LogInfo($"[Config] {Plugin.ModName} v{Plugin.ModVersion} ModEnabled={Plugin.ModEnabled.Value} Debug={Enabled} DumpKey={Plugin.DumpKey.Value} LogFile={_logPath}");
                 LogInfo($"[ZenPlayer] version={VersionOf("ZenPlayer")} seam={Plugin.ZenPlayerPickupPatch.SeamName} bound={Plugin.ZenPlayerPickupPatch.SeamBound}");
                 LogInfo($"[ZenPlayer] extended={Plugin.ZenPlayerPickupPatch.ExtendedEnabled} mode={Plugin.ZenPlayerPickupPatch.ModeName} filterActive={Plugin.ZenPlayerPickupPatch.FilterActive}");
-                LogInfo($"[AdventureBackpacks] version={VersionOf("AdventureBackpacks")} backpacks={BackpackCount()}");
+                LogInfo($"[AdventureBackpacks] version={VersionOf("AdventureBackpacks")} equippedBackpack={EquippedBackpackState()} allBackpacks={BackpackCount()}");
             }
             catch (Exception ex)
             {
@@ -218,11 +218,12 @@ namespace ZenPlayerBackpackBridge
 
                 Inventory equipped = ABAPI.GetEquippedBackpackInventory(player);
                 LogInfo($"[Player] equipped backpack={(equipped == null ? "none" : equipped.GetAllItems().Count + " items")}");
+                LogInfo("[Backpacks] filter uses the equipped backpack only");
 
                 List<Inventory> backpacks = ABAPI.GetAllBackpackInventories(player);
                 if (backpacks == null || backpacks.Count == 0)
                 {
-                    LogInfo("[Backpacks] none carried or equipped");
+                    LogInfo("[Backpacks] none found (equipped or carried)");
                     return;
                 }
 
@@ -298,10 +299,8 @@ namespace ZenPlayerBackpackBridge
                 switch (outcome)
                 {
                     case PickupOutcome.Allowed:
-                        detail = $"backpackItems={value}";
-                        break;
                     case PickupOutcome.NotInBackpack:
-                        detail = $"backpacks={value}";
+                        detail = $"equippedBackpackItems={value}";
                         break;
                     case PickupOutcome.NoCapacity:
                         detail = "capacity=false";
@@ -554,6 +553,15 @@ namespace ZenPlayerBackpackBridge
 
             List<Inventory> backpacks = ABAPI.GetAllBackpackInventories(player);
             return backpacks?.Count ?? 0;
+        }
+
+        private static string EquippedBackpackState()
+        {
+            Player player = Player.m_localPlayer;
+            if (player == null) return "none (no player)";
+
+            Inventory equipped = ABAPI.GetEquippedBackpackInventory(player);
+            return equipped == null ? "none" : $"{equipped.GetAllItems().Count} items";
         }
 
         private static string Summary(Inventory inventory)

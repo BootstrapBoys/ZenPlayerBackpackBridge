@@ -4,6 +4,14 @@ All notable changes to the "ZenPlayer Backpack Bridge" project will be documente
 
 ---
 
+## [1.3.2] - 2026-10-30
+
+### Fixed
+- Backpack contents now count only while the backpack is equipped. A backpack carried in the player inventory no longer satisfies ZenPlayer's **Have In Inventory** filter.
+- Removed the duplicate "found ZenPlayer auto-pickup filter" startup log line caused by Harmony invoking `Prepare()` twice.
+
+---
+
 ## [1.3.1] - 2026-10-29
 
 ### Added

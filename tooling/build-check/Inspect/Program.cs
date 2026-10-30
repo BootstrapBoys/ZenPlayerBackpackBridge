@@ -38,6 +38,7 @@ internal static class Program
 
         Console.WriteLine("\n### AdventureBackpacks.API.ABAPI surface");
         Method(ab, "AdventureBackpacks.API.ABAPI", "IsLoaded", Array.Empty<string>(), "Boolean", true);
+        Method(ab, "AdventureBackpacks.API.ABAPI", "GetEquippedBackpackInventory", new[] { "Player" }, "Inventory", true);
         Method(ab, "AdventureBackpacks.API.ABAPI", "GetAllBackpackInventories", new[] { "Player" }, "List`1", true);
 
         Console.WriteLine("\n### ZenPlayer auto-pickup seam");

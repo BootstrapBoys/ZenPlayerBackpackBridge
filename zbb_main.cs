@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using AdventureBackpacks.API;
 using BepInEx;
@@ -16,7 +15,7 @@ namespace ZenPlayerBackpackBridge
     {
         public const string ModGUID = "com.bootstrapboys.zenplayerbackpackbridge";
         public const string ModName = "ZenPlayer Backpack Bridge";
-        public const string ModVersion = "1.3.1";
+        public const string ModVersion = "1.3.2";
 
         public static Plugin Instance { get; private set; }
 
@@ -79,11 +78,17 @@ namespace ZenPlayerBackpackBridge
             private static Func<bool> _autoPickupExtended;
             private static int _haveInInventory = int.MinValue;
 
-            // GetAllBackpackInventories allocates; AutoPickup calls the seam per nearby item per
-            // frame, so the list is reused for the whole frame.
+            // GetEquippedBackpackInventory is cheap but called per nearby item per frame, so it is
+            // cached for the whole frame. Only the equipped backpack counts: a backpack merely
+            // carried in the inventory must not satisfy the filter.
             private static int _cacheFrame = -1;
             private static Player _cachePlayer;
-            private static List<Inventory> _cacheInventories;
+            private static Inventory _cacheEquippedBackpack;
+
+            // Harmony invokes a parameterless Prepare once for the class and again per patch job;
+            // memoise it so the binding work and its log line happen exactly once.
+            private static bool _prepared;
+            private static bool _preparedOk;
 
             internal static bool SeamBound => _seam != null;
 
@@ -129,6 +134,9 @@ namespace ZenPlayerBackpackBridge
 
             public static bool Prepare()
             {
+                if (_prepared) return _preparedOk;
+                _prepared = true;
+
                 try
                 {
                     Type rules = null;
@@ -192,6 +200,7 @@ namespace ZenPlayerBackpackBridge
                     }
 
                     ZbbDebugger.LogInfo($"{ModName}: found ZenPlayer auto-pickup filter {SeamName}.");
+                    _preparedOk = true;
                     return true;
                 }
                 catch (Exception ex)
@@ -265,25 +274,17 @@ namespace ZenPlayerBackpackBridge
                         return;
                     }
 
-                    List<Inventory> backpacks = GetBackpackInventories(player);
-                    if (backpacks == null)
+                    Inventory backpack = GetEquippedBackpack(player);
+                    if (backpack != null && backpack.HaveItem(itemName, true))
                     {
-                        ZbbDebugger.Count(PickupOutcome.Skipped);
+                        __result = true;
+                        ZbbDebugger.Trace(PickupOutcome.Allowed, itemName,
+                            backpack.GetAllItems().Count);
                         return;
                     }
 
-                    foreach (Inventory backpack in backpacks)
-                    {
-                        if (backpack != null && backpack.HaveItem(itemName, true))
-                        {
-                            __result = true;
-                            ZbbDebugger.Trace(PickupOutcome.Allowed, itemName,
-                                backpack.GetAllItems().Count);
-                            return;
-                        }
-                    }
-
-                    ZbbDebugger.Trace(PickupOutcome.NotInBackpack, itemName, backpacks.Count);
+                    ZbbDebugger.Trace(PickupOutcome.NotInBackpack, itemName,
+                        backpack == null ? -1 : backpack.GetAllItems().Count);
                 }
                 catch (Exception ex)
                 {
@@ -317,17 +318,17 @@ namespace ZenPlayerBackpackBridge
                        Convert.ToInt32(_pickupModeField.GetValue(null)) == _haveInInventory;
             }
 
-            private static List<Inventory> GetBackpackInventories(Player player)
+            private static Inventory GetEquippedBackpack(Player player)
             {
                 int frame = Time.frameCount;
                 if (frame != _cacheFrame || !ReferenceEquals(player, _cachePlayer))
                 {
-                    _cacheInventories = ABAPI.GetAllBackpackInventories(player);
+                    _cacheEquippedBackpack = ABAPI.GetEquippedBackpackInventory(player);
                     _cacheFrame = frame;
                     _cachePlayer = player;
                 }
 
-                return _cacheInventories;
+                return _cacheEquippedBackpack;
             }
         }
     }

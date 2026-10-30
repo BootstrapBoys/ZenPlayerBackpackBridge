@@ -8,8 +8,8 @@ contract.
 
 - The exact BepInPlugin GUIDs declared as hard dependencies exist in the referenced mods:
   `ZenDragon.ZenPlayer` and `vapok.mods.adventurebackpacks`.
-- `AdventureBackpacks.API.ABAPI.GetAllBackpackInventories(Player)` still exists with the expected
-  static/return shape.
+- `AdventureBackpacks.API.ABAPI.GetEquippedBackpackInventory(Player)` and
+  `GetAllBackpackInventories(Player)` still exist with the expected shapes.
 - ZenPlayer's auto-pickup seam still exists:
   `AutoPickupRules.CanAddItem_Intercept(Inventory, ItemData, int)`, its private `_pickupMode`
   field, `Configs.AutoPickupExtended`, and `PickupMode.HaveInInventory == 1`. These are the
