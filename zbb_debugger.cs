@@ -291,6 +291,10 @@ namespace ZenPlayerBackpackBridge
         {
             Count(outcome);
 
+            // Tracing is a debug feature. With it off, do not touch the dictionary or ring
+            // buffer on the per-item path at all.
+            if (!Enabled) return;
+
             try
             {
                 if (!ShouldRecord(outcome, item)) return;

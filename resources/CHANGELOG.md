@@ -4,6 +4,14 @@ All notable changes to the "ZenPlayer Backpack Bridge" project will be documente
 
 ---
 
+## [1.3.3] - 2026-11-01
+
+### Fixed
+- Reduced autopickup overhead when many items are on the ground: the equipped backpack's item names are cached per frame and checked before the capacity path, so `Inventory.CanAddItem` is only called for items that are actually in the backpack.
+- Mode-inactive handling no longer traces every ground item, and the recent-decision trace is skipped entirely unless debug logging is enabled.
+
+---
+
 ## [1.3.2] - 2026-10-30
 
 ### Fixed

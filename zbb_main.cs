@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using AdventureBackpacks.API;
 using BepInEx;
@@ -15,7 +16,7 @@ namespace ZenPlayerBackpackBridge
     {
         public const string ModGUID = "com.bootstrapboys.zenplayerbackpackbridge";
         public const string ModName = "ZenPlayer Backpack Bridge";
-        public const string ModVersion = "1.3.2";
+        public const string ModVersion = "1.3.3";
 
         public static Plugin Instance { get; private set; }
 
@@ -84,6 +85,9 @@ namespace ZenPlayerBackpackBridge
             private static int _cacheFrame = -1;
             private static Player _cachePlayer;
             private static Inventory _cacheEquippedBackpack;
+            private static int _cacheEquippedCount;
+            private static readonly HashSet<string> _equippedNames =
+                new HashSet<string>(StringComparer.Ordinal);
 
             // Harmony invokes a parameterless Prepare once for the class and again per patch job;
             // memoise it so the binding work and its log line happen exactly once.
@@ -250,13 +254,29 @@ namespace ZenPlayerBackpackBridge
                         return;
                     }
 
-                    string itemName = __1.m_shared?.m_name;
-
                     // Only extend "have in inventory" filtering. "Everything" needs no help,
                     // and "Nothing" must stay off.
                     if (!IsHaveInInventoryMode())
                     {
-                        ZbbDebugger.Trace(PickupOutcome.ModeInactive, itemName);
+                        ZbbDebugger.Count(PickupOutcome.ModeInactive);
+                        return;
+                    }
+
+                    string itemName = __1.m_shared?.m_name;
+                    if (string.IsNullOrEmpty(itemName))
+                    {
+                        ZbbDebugger.Count(PickupOutcome.Skipped);
+                        return;
+                    }
+
+                    // The common case is "not in the equipped backpack". Reject it with the
+                    // per-frame name set before touching AdventureBackpacks' expensive capacity
+                    // path; only actual matches are worth a CanAddItem call.
+                    Inventory backpack = GetEquippedBackpack(player);
+                    if (backpack == null || !_equippedNames.Contains(itemName))
+                    {
+                        ZbbDebugger.Trace(PickupOutcome.NotInBackpack, itemName,
+                            backpack == null ? -1 : _cacheEquippedCount);
                         return;
                     }
 
@@ -268,23 +288,8 @@ namespace ZenPlayerBackpackBridge
                         return;
                     }
 
-                    if (string.IsNullOrEmpty(itemName))
-                    {
-                        ZbbDebugger.Count(PickupOutcome.Skipped);
-                        return;
-                    }
-
-                    Inventory backpack = GetEquippedBackpack(player);
-                    if (backpack != null && backpack.HaveItem(itemName, true))
-                    {
-                        __result = true;
-                        ZbbDebugger.Trace(PickupOutcome.Allowed, itemName,
-                            backpack.GetAllItems().Count);
-                        return;
-                    }
-
-                    ZbbDebugger.Trace(PickupOutcome.NotInBackpack, itemName,
-                        backpack == null ? -1 : backpack.GetAllItems().Count);
+                    __result = true;
+                    ZbbDebugger.Trace(PickupOutcome.Allowed, itemName, _cacheEquippedCount);
                 }
                 catch (Exception ex)
                 {
@@ -321,11 +326,27 @@ namespace ZenPlayerBackpackBridge
             private static Inventory GetEquippedBackpack(Player player)
             {
                 int frame = Time.frameCount;
-                if (frame != _cacheFrame || !ReferenceEquals(player, _cachePlayer))
+                if (frame == _cacheFrame && ReferenceEquals(player, _cachePlayer))
+                    return _cacheEquippedBackpack;
+
+                _cacheFrame = frame;
+                _cachePlayer = player;
+                _cacheEquippedBackpack = ABAPI.GetEquippedBackpackInventory(player);
+                _equippedNames.Clear();
+                _cacheEquippedCount = 0;
+
+                if (_cacheEquippedBackpack == null) return null;
+
+                // Mirror Inventory.HaveItem(name, true): exact name, world level at least the
+                // current one. Built once per frame, not once per nearby ground item.
+                int worldLevel = Game.m_worldLevel;
+                foreach (ItemDrop.ItemData item in _cacheEquippedBackpack.GetAllItems())
                 {
-                    _cacheEquippedBackpack = ABAPI.GetEquippedBackpackInventory(player);
-                    _cacheFrame = frame;
-                    _cachePlayer = player;
+                    _cacheEquippedCount++;
+
+                    string name = item?.m_shared?.m_name;
+                    if (!string.IsNullOrEmpty(name) && item.m_worldLevel >= worldLevel)
+                        _equippedNames.Add(name);
                 }
 
                 return _cacheEquippedBackpack;

@@ -1,4 +1,4 @@
-# In-game test plan — ZenPlayer Backpack Bridge 1.3.2
+# In-game test plan — ZenPlayer Backpack Bridge 1.3.3
 
 ## Setup
 
@@ -15,7 +15,7 @@ Every scenario below assumes **Inventory** mode unless it says otherwise.
 Search the log for these lines before touching an item:
 
 ```
-[ZBB][INFO] ZenPlayer Backpack Bridge v1.3.2 loaded.
+[ZBB][INFO] ZenPlayer Backpack Bridge v1.3.3 loaded.
 [ZBB][INFO] [Log] .../BepInEx/BSBLogs/ZenPlayer_Backpack_Bridge.log
 [ZBB][INFO] ZenPlayer Backpack Bridge: found ZenPlayer auto-pickup filter ZenPlayer.Sections.AutoPickupRules.CanAddItem_Intercept.
 [ZBB][INFO] [Patches] ZenPlayer.Sections.AutoPickupRules.CanAddItem_Intercept <- 1 patch(es)
@@ -38,12 +38,13 @@ Press the dump key after each scenario and keep the block. Press it while standi
 | 4b | Equip that same backpack and drop another | Picked up | `Allowed` trace |
 | 5 | Fill the player inventory and every backpack, drop an item that is in the equipped backpack | Not picked up, no repeated "No room in inventory" | `NoCapacity` trace; `allowed` unchanged |
 | 6 | Fill the player inventory, enable AB overflow, leave room in the **equipped** backpack, item also in that backpack | Picked up into the equipped backpack | `Allowed` trace; item appears in that backpack |
-| 7 | Set ZenPlayer mode to **Nothing**, item in a backpack | Not picked up | `ModeInactive` trace with `mode=Nothing` |
-| 8 | Set ZenPlayer mode to **Everything**, any item | Vanilla/AdventureBackpacks behaviour; bridge never overrides | `ModeInactive` trace with `mode=Everything`, or `already` |
+| 7 | Set ZenPlayer mode to **Nothing**, item in a backpack | Not picked up | `modeInactive` counter rises; config shows `mode=Nothing` |
+| 8 | Set ZenPlayer mode to **Everything**, any item | Vanilla/AdventureBackpacks behaviour; bridge never overrides | `modeInactive` counter rises, or `already`; config shows `mode=Everything` |
 | 9 | Turn **Mod Enabled** off, repeat #3, turn it back on | No bridge pickup while off; pickup resumes without a restart | `skipped` counter rises while off |
 | 10 | Run `zen_player inventory`, then `zen_player equipped` | Items listed under the correct section; no backpack item appears in the wrong list | visual check |
 | 11 | Two backpacks both holding the same item | One pickup, no duplicate or extra item | a single `Allowed` trace |
 | 12 | Drop an item that would exceed your carry weight, with a copy in a backpack | Not picked up | may show `Allowed`; the game's weight check still refuses it |
+| 13 | Drop a large pile of mixed items, disable debug logging, and walk through it | No stutter; pickup behaviour unchanged | counters still rise; trace is not recorded with debug off |
 
 Scenario 12 is expected to look contradictory: the bridge only answers the inventory-capacity question, and `Player.AutoPickup` separately checks carry weight. `Allowed` in the trace plus an item still on the ground is correct if you are overweight.
 
@@ -55,7 +56,7 @@ Scenario 4 is the regression this release fixes: an unequipped backpack must con
 
 ```
 [ZBB][INFO] ==================== ZBB DUMP START ====================
-[ZBB][INFO] [Config] ZenPlayer Backpack Bridge v1.3.2 ModEnabled=True Debug=True DumpKey=F10 + LeftControl + LeftShift LogFile=.../BepInEx/BSBLogs/ZenPlayer_Backpack_Bridge.log
+[ZBB][INFO] [Config] ZenPlayer Backpack Bridge v1.3.3 ModEnabled=True Debug=True DumpKey=F10 + LeftControl + LeftShift LogFile=.../BepInEx/BSBLogs/ZenPlayer_Backpack_Bridge.log
 [ZBB][INFO] [ZenPlayer] version=1.3.0 seam=... bound=True
 [ZBB][INFO] [ZenPlayer] extended=True mode=HaveInInventory filterActive=True
 [ZBB][INFO] [AdventureBackpacks] version=2.4.6 equippedBackpack=12 items allBackpacks=2
@@ -80,7 +81,7 @@ Scenario 4 is the regression this release fixes: an unequipped backpack must con
 - **`notInBackpack`** means the item was not found in the **equipped** backpack. `equippedBackpackItems=-1` means no backpack was equipped at all; `0` means one is equipped but empty.
 - **`modeInactive`** means ZenPlayer was not in extended **Inventory** mode at that moment.
 
-The trace is throttled to one entry per item per outcome every 2 seconds, so it does not grow per frame. Counters are exact.
+The trace is only recorded when **Enable Debug Logging** is on and is throttled to one entry per item per outcome every 2 seconds, so it does not grow per frame. Counters are exact and always update.
 
 ## 4. Failure signatures
 

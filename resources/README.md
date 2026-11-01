@@ -41,7 +41,7 @@ Install **ZenPlayer Backpack Bridge** from [Hexium](https://valheim.hexium.gg/mo
 
 ## Diagnostics
 
-The bridge writes its own log to `BepInEx/BSBLogs/ZenPlayer_Backpack_Bridge.log`, separate from `LogOutput.log`. It is appended per session and rotated to `.old` at 5 MB. Press the dump key in game to append the current config, patch inventory, player/backpack contents, counters and recent pickup decisions to that file.
+The bridge writes its own log to `BepInEx/BSBLogs/ZenPlayer_Backpack_Bridge.log`, separate from `LogOutput.log`. It is appended per session and rotated to `.old` at 5 MB. Press the dump key in game to append the current config, patch inventory, player/backpack contents and counters; recent pickup decisions are included when **Enable Debug Logging** is on.
 
 ## Troubleshooting
 
