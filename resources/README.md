@@ -39,6 +39,8 @@ Install **ZenPlayer Backpack Bridge** from [Hexium](https://valheim.hexium.gg/mo
 - **Enable Debug Logging** — log every decision the bridge makes, throttled per item.
 - **Dump Key** — writes a full diagnostics dump to the log; default `Ctrl+Shift+F10`.
 
+Both diagnostics options are in the **Diagnostics** section.
+
 ## Diagnostics
 
 The bridge writes its own log to `BepInEx/BSBLogs/ZenPlayer_Backpack_Bridge.log`, separate from `LogOutput.log`. It is appended per session and rotated to `.old` at 5 MB. Press the dump key in game to append the current config, patch inventory, player/backpack contents and counters; recent pickup decisions are included when **Enable Debug Logging** is on.

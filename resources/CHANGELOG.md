@@ -4,6 +4,13 @@ All notable changes to the "ZenPlayer Backpack Bridge" project will be documente
 
 ---
 
+## [1.3.4] - 2026-11-01
+
+### Changed
+- Moved **Enable Debug Logging** into the **Diagnostics** config section alongside **Dump Key**. An existing enabled value is migrated automatically.
+
+---
+
 ## [1.3.3] - 2026-11-01
 
 ### Fixed

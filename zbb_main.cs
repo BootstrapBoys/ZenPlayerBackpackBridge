@@ -16,7 +16,7 @@ namespace ZenPlayerBackpackBridge
     {
         public const string ModGUID = "com.bootstrapboys.zenplayerbackpackbridge";
         public const string ModName = "ZenPlayer Backpack Bridge";
-        public const string ModVersion = "1.3.3";
+        public const string ModVersion = "1.3.4";
 
         public static Plugin Instance { get; private set; }
 
@@ -35,11 +35,13 @@ namespace ZenPlayerBackpackBridge
 
             ModEnabled = Config.Bind("1. General", "Mod Enabled", true,
                 "Enable or disable the bridge. Takes effect immediately.");
-            EnableDebugLogging = Config.Bind("1. General", "Enable Debug Logging", false,
+            EnableDebugLogging = Config.Bind("2. Diagnostics", "Enable Debug Logging", false,
                 "Log every decision the bridge makes (throttled per item).");
             DumpKey = Config.Bind("2. Diagnostics", "Dump Key",
                 new KeyboardShortcut(KeyCode.F10, KeyCode.LeftControl, KeyCode.LeftShift),
                 "Press in game to write a full diagnostics dump to the BepInEx log. Set to None to disable.");
+
+            MigrateLegacyDebugSetting();
 
             _harmony = new Harmony(ModGUID);
 
@@ -59,6 +61,28 @@ namespace ZenPlayerBackpackBridge
         private void Update()
         {
             ZbbDebugger.HandleDumpKey();
+        }
+
+        private void MigrateLegacyDebugSetting()
+        {
+            try
+            {
+                ConfigDefinition legacyDefinition = new ConfigDefinition("1. General", "Enable Debug Logging");
+                ConfigEntry<bool> legacy = Config.Bind(legacyDefinition, false,
+                    new ConfigDescription("Legacy location; moved to Diagnostics."));
+                bool legacyValue = legacy.Value;
+                Config.Remove(legacyDefinition);
+
+                if (legacyValue && !EnableDebugLogging.Value)
+                {
+                    EnableDebugLogging.Value = true;
+                    ZbbDebugger.LogInfo("[Config] Migrated Enable Debug Logging to Diagnostics.");
+                }
+            }
+            catch (Exception ex)
+            {
+                ZbbDebugger.LogWarning("Could not migrate the legacy Enable Debug Logging setting: " + ex.Message);
+            }
         }
 
         private void OnDestroy()
