@@ -4,6 +4,13 @@ All notable changes to the "ZenPlayer Backpack Bridge" project will be documente
 
 ---
 
+## [1.3.5] - 2026-11-02
+
+### Fixed
+- Large ground piles no longer pay AdventureBackpacks' expensive capacity/overflow scan for items that cannot fit in either the player inventory or the equipped backpack. The bridge now checks for free space first and only calls the full capacity path when a fit is possible.
+
+---
+
 ## [1.3.4] - 2026-11-01
 
 ### Changed

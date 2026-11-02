@@ -16,7 +16,7 @@ namespace ZenPlayerBackpackBridge
     {
         public const string ModGUID = "com.bootstrapboys.zenplayerbackpackbridge";
         public const string ModName = "ZenPlayer Backpack Bridge";
-        public const string ModVersion = "1.3.4";
+        public const string ModVersion = "1.3.5";
 
         public static Plugin Instance { get; private set; }
 
@@ -305,11 +305,16 @@ namespace ZenPlayerBackpackBridge
                     }
 
                     // Preserve the game's capacity decision, including AdventureBackpacks'
-                    // inventory overflow into the equipped backpack.
-                    if (!__0.CanAddItem(__1, -1))
+                    // inventory overflow into the equipped backpack. The cheap check filters out
+                    // the common "no room anywhere" case without entering AB's expensive
+                    // CanAddItem/StoreToBackpack scan; only a possible fit reaches that path.
+                    if (!PlayerInventoryCanAccept(__0, __1))
                     {
-                        ZbbDebugger.Trace(PickupOutcome.NoCapacity, itemName);
-                        return;
+                        if (!EquippedBackpackMayAccept(backpack, __1) || !__0.CanAddItem(__1, -1))
+                        {
+                            ZbbDebugger.Trace(PickupOutcome.NoCapacity, itemName);
+                            return;
+                        }
                     }
 
                     __result = true;
@@ -374,6 +379,38 @@ namespace ZenPlayerBackpackBridge
                 }
 
                 return _cacheEquippedBackpack;
+            }
+
+            // Exact vanilla check: free stack space plus free slots times max stack.
+            // Used only to avoid AB's expensive CanAddItem/StoreToBackpack path when the
+            // player inventory obviously cannot accept the item.
+            private static bool PlayerInventoryCanAccept(Inventory inventory, ItemDrop.ItemData item)
+            {
+                if (inventory == null || item?.m_shared == null) return false;
+
+                int stack = item.m_stack;
+                if (stack <= 0) stack = 1;
+
+                int freeStack = inventory.FindFreeStackSpace(
+                    item.m_shared.m_name, item.m_worldLevel);
+                int freeSlots = inventory.GetWidth() * inventory.GetHeight() - inventory.NrOfItems();
+                return freeStack + freeSlots * item.m_shared.m_maxStackSize >= stack;
+            }
+
+            // Cheap "could the equipped backpack take it" test, matching the room checks
+            // AdventureBackpacks' StoreToBackpack uses: an empty slot, some free stack
+            // space, or an empty slot for a stackable item. If false, no capacity path can
+            // succeed, so the expensive CanAddItem call is skipped.
+            private static bool EquippedBackpackMayAccept(Inventory backpack, ItemDrop.ItemData item)
+            {
+                if (backpack == null || item?.m_shared == null) return false;
+                if (backpack.HaveEmptySlot()) return true;
+                if (item.m_shared.m_maxStackSize <= 1) return false;
+                if (backpack.FindFreeStackSpace(item.m_shared.m_name, item.m_worldLevel) > 0)
+                    return true;
+
+                int freeSlots = backpack.GetWidth() * backpack.GetHeight() - backpack.NrOfItems();
+                return freeSlots > 0;
             }
         }
     }

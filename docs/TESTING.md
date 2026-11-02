@@ -1,4 +1,4 @@
-# In-game test plan — ZenPlayer Backpack Bridge 1.3.4
+# In-game test plan — ZenPlayer Backpack Bridge 1.3.5
 
 ## Setup
 
@@ -15,7 +15,7 @@ Every scenario below assumes **Inventory** mode unless it says otherwise.
 Search the log for these lines before touching an item:
 
 ```
-[ZBB][INFO] ZenPlayer Backpack Bridge v1.3.4 loaded.
+[ZBB][INFO] ZenPlayer Backpack Bridge v1.3.5 loaded.
 [ZBB][INFO] [Log] .../BepInEx/BSBLogs/ZenPlayer_Backpack_Bridge.log
 [ZBB][INFO] ZenPlayer Backpack Bridge: found ZenPlayer auto-pickup filter ZenPlayer.Sections.AutoPickupRules.CanAddItem_Intercept.
 [ZBB][INFO] [Patches] ZenPlayer.Sections.AutoPickupRules.CanAddItem_Intercept <- 1 patch(es)
@@ -56,7 +56,7 @@ Scenario 4 is the regression this release fixes: an unequipped backpack must con
 
 ```
 [ZBB][INFO] ==================== ZBB DUMP START ====================
-[ZBB][INFO] [Config] ZenPlayer Backpack Bridge v1.3.4 ModEnabled=True Debug=True DumpKey=F10 + LeftControl + LeftShift LogFile=.../BepInEx/BSBLogs/ZenPlayer_Backpack_Bridge.log
+[ZBB][INFO] [Config] ZenPlayer Backpack Bridge v1.3.5 ModEnabled=True Debug=True DumpKey=F10 + LeftControl + LeftShift LogFile=.../BepInEx/BSBLogs/ZenPlayer_Backpack_Bridge.log
 [ZBB][INFO] [ZenPlayer] version=1.3.0 seam=... bound=True
 [ZBB][INFO] [ZenPlayer] extended=True mode=HaveInInventory filterActive=True
 [ZBB][INFO] [AdventureBackpacks] version=2.4.6 equippedBackpack=12 items allBackpacks=2
