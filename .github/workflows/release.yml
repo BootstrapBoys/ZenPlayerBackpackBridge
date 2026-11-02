@@ -130,6 +130,6 @@ jobs:
           HEXIUM_TOKEN: ${{ env.HEXIUM_API_TOKEN }}
           HEXIUM_NAMESPACE: ${{ vars.HEXIUM_NAMESPACE || 'BootstrapBoys' }}
           HEXIUM_COMMUNITY: ${{ vars.HEXIUM_COMMUNITY || 'valheim' }}
-          HEXIUM_CATEGORIES: ${{ vars.HEXIUM_CATEGORIES }}
+          HEXIUM_CATEGORIES: ${{ vars.HEXIUM_CATEGORIES || 'Client-only' }}
           HEXIUM_FILE: ZenPlayerBackpackBridge-v${{ steps.version.outputs.version }}.zip
         run: ./tooling/hexium-upload.sh

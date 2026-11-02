@@ -48,7 +48,7 @@ Optional repository variables:
 
 - `HEXIUM_NAMESPACE` — team/namespace, default `BootstrapBoys`.
 - `HEXIUM_COMMUNITY` — default `valheim`.
-- `HEXIUM_CATEGORIES` — comma-separated categories; empty by default.
+- `HEXIUM_CATEGORIES` — comma-separated categories, default `Client-only`.
 
 The uploader is `tooling/hexium-upload.sh`. It follows Hexium's Thunderstore-compatible
 experimental flow: initiate upload, PUT the presigned parts, finish, submit. A local run:
